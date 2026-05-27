@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>Math Shooter</title>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700&display=swap" rel="stylesheet"/>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background: #0f172a;
+      font-family: 'Outfit', sans-serif;
+      color: white;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    #unity-container {
+      position: relative;
+      width: 800px;
+      height: 600px;
+    }
+
+    #unity-canvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    .painel {
+      display: none;
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(15, 23, 42, 0.95);
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      gap: 20px;
+      z-index: 10;
+    }
+
+    .painel.ativo { display: flex; }
+
+    .painel h1 {
+      font-size: 2.2rem;
+      font-weight: 700;
+      color: #f97316;
+    }
+
+    .painel p {
+      font-size: 1rem;
+      color: #94a3b8;
+      text-align: center;
+      max-width: 400px;
+    }
+
+    .btn {
+      background: #f97316;
+      color: white;
+      border: none;
+      padding: 12px 36px;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-family: 'Outfit', sans-serif;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .btn:hover { background: #ea6c0a; }
+
+    .btn-secundario {
+      background: transparent;
+      border: 1px solid #f97316;
+      color: #f97316;
+    }
+
+    .btn-secundario:hover { background: rgba(249,115,22,0.1); }
+
+    #score-final {
+      font-size: 1.4rem;
+      font-weight: 600;
+      color: white;
+    }
+
+    #fase-titulo {
+      font-size: 2rem;
+      font-weight: 700;
+      color: #f97316;
+    }
+
+    #fase-desc {
+      font-size: 0.9rem;
+      color: #94a3b8;
+      text-align: center;
+      max-width: 420px;
+      white-space: pre-line;
+    }
+  </style>
+</head>
+<body>
+  <div id="unity-container">
+    <canvas id="unity-canvas"></canvas>
+
+    <!-- Menu Principal -->
+    <div class="painel ativo" id="painel-menu">
+      <h1>Math Shooter</h1>
+      <p>Destrua os inimigos com a resposta correta e avance pelas fases!</p>
+      <button class="btn" onclick="iniciarJogo()">Iniciar</button>
+      <button class="btn btn-secundario" onclick="abrirComoJogar()">Como Jogar</button>
+    </div>
+
+    <!-- Como Jogar -->
+    <div class="painel" id="painel-como-jogar">
+      <h1>Como Jogar</h1>
+      <p>Use as setas ou A/D para mover a nave.<br/>Pressione Espaço ou ↑ para atirar.<br/>Acerte o inimigo com a resposta correta!</p>
+      <button class="btn" onclick="fecharComoJogar()">Voltar</button>
+    </div>
+
+    <!-- Game Over -->
+    <div class="painel" id="painel-gameover">
+      <h1>Game Over</h1>
+      <p id="score-final">Pontuação: 0</p>
+      <button class="btn" onclick="jogarNovamente()">Jogar Novamente</button>
+    </div>
+
+    <!-- Fase Completa -->
+    <div class="painel" id="painel-fase">
+      <h1 id="fase-titulo">Fase Completa!</h1>
+      <p id="fase-desc"></p>
+      <button class="btn" id="btn-continuar" onclick="continuar()">Continuar</button>
+    </div>
+  </div>
+
+  <script>
+    var unityInstance = null;
+
+    window.unityBridge = {
+      mostrarGameOver: function(score) {
+        esconderTodos();
+        document.getElementById('score-final').innerText = 'Pontuação: ' + score;
+        document.getElementById('painel-gameover').classList.add('ativo');
+      },
+      mostrarFaseCompleta: function(fase, aprovado) {
+        esconderTodos();
+        document.getElementById('fase-titulo').innerText = aprovado ? 'Fase ' + fase + ' Completa!' : 'Tente Novamente!';
+        document.getElementById('fase-desc').innerText = aprovado ? 'Parabéns! Você acertou tudo!' : 'Acerte todas as questões para avançar.';
+        document.getElementById('btn-continuar').innerText = aprovado ? 'Continuar' : 'Tentar Novamente';
+        document.getElementById('painel-fase').classList.add('ativo');
+      },
+      esconderPaineis: function() {
+        esconderTodos();
+      },
+      mostrarMenuPrincipal: function() {
+        esconderTodos();
+        document.getElementById('painel-menu').classList.add('ativo');
+      },
+      atualizarHUD: function(score, fase, timer, pergunta) {
+        // HUD ainda fica no Unity por enquanto
+      }
+    };
+
+    function esconderTodos() {
+      document.querySelectorAll('.painel').forEach(p => p.classList.remove('ativo'));
+    }
+
+    function iniciarJogo() {
+      if (unityInstance) unityInstance.SendMessage('GameManager', 'IniciarJogo');
+    }
+
+    function abrirComoJogar() {
+      esconderTodos();
+      document.getElementById('painel-como-jogar').classList.add('ativo');
+    }
+
+    function fecharComoJogar() {
+      esconderTodos();
+      document.getElementById('painel-menu').classList.add('ativo');
+    }
+
+    function jogarNovamente() {
+      if (unityInstance) unityInstance.SendMessage('GameManager', 'ReiniciarDaFase');
+      esconderTodos();
+    }
+
+    function continuar() {
+      if (unityInstance) unityInstance.SendMessage('GameManager', 'AcaoBtnContinuar');
+      esconderTodos();
+    }
+  </script>
+</body>
+</html>
