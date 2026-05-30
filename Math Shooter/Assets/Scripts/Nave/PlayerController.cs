@@ -48,7 +48,6 @@ public class PlayerController : MonoBehaviour
             {
                 sr.sortingOrder = 20;
                 sr.sortingLayerName = "Default";
-            
         }
     }
 
@@ -180,19 +179,6 @@ public class PlayerController : MonoBehaviour
 
         if (btnEsquerdoPressionado) direcao -= 1f;
         if (btnDireitoPressionado) direcao += 1f;
-
-        if (UnityEngine.InputSystem.Touchscreen.current != null &&
-            UnityEngine.InputSystem.Touchscreen.current.touches.Count > 0)
-        {
-            var touch = UnityEngine.InputSystem.Touchscreen.current.touches[0];
-            float meiaTela = Screen.width * 0.5f;
-            var pos = touch.position.ReadValue();
-            if (pos.y < Screen.height * 0.3f)
-            {
-                if (pos.x < meiaTela) direcao -= 1f;
-                else direcao += 1f;
-            }
-        }
 
         Vector3 p = transform.position;
         p.x = Mathf.Clamp(p.x + direcao * speed * Time.deltaTime, limiteEsq, limiteDirMin);

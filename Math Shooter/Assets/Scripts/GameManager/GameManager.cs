@@ -88,22 +88,6 @@ public class GameManager : MonoBehaviour
     public int GetFaseAtual() => faseAtual;
     public int GetCorrectAnswer() => correctAnswer;
 
-    [DllImport("__Internal")]
-    private static extern void MostrarGameOver(int score);
-
-    [DllImport("__Internal")]
-    private static extern void MostrarFaseCompleta(int fase, bool aprovado);
-
-    [DllImport("__Internal")]
-    private static extern void EsconderPaineis();
-
-    [DllImport("__Internal")]
-    private static extern void MostrarMenuPrincipal();
-
-    [DllImport("__Internal")]
-    private static extern void AtualizarHUD(string score, string fase, string timer, string pergunta);
-
-    // ─────────────────────────────────────────────────────────────────
     void Awake() { instance = this; }
 
     void Start()
@@ -208,10 +192,6 @@ public class GameManager : MonoBehaviour
         AtualizarUI();
         jogoIniciado = true;
         if (BackgroundManager.Instance != null) BackgroundManager.Instance.SetStage(faseAtual);
-
-#if UNITY_WEBGL && !UNITY_EDITOR
-        EsconderPaineis();
-#endif
 
         SpawnWave();
     }
@@ -644,12 +624,8 @@ public class GameManager : MonoBehaviour
         Time.timeScale = 0f;
         if (BackgroundManager.Instance != null) BackgroundManager.Instance.SetGameOver();
 
-#if UNITY_WEBGL && !UNITY_EDITOR
-        MostrarGameOver(score);
-#else
         finalScoreText.text = "Pontuação: " + score;
         MostrarSomente(gameOverPanel);
-#endif
     }
 
     void FaseCompleta()
@@ -698,13 +674,9 @@ public class GameManager : MonoBehaviour
         TextMeshProUGUI btnTexto = btnContinuar.GetComponentInChildren<TextMeshProUGUI>();
         if (btnTexto != null)
             btnTexto.text = faseAprovada ? "Continuar" : "Tentar Novamente";
-#if UNITY_WEBGL && !UNITY_EDITOR
-            MostrarFaseCompleta(faseAtual, faseAprovada);
-            Invoke(nameof(PausarJogo), 0.6f);
-#else
+
         MostrarSomente(faseCompletaPanel);
         Invoke(nameof(PausarJogo), 0.6f);
-#endif
     }
     void VitoriaFinal()
     {
@@ -743,13 +715,8 @@ public class GameManager : MonoBehaviour
         btnContinuar.onClick.RemoveAllListeners();
         btnContinuar.onClick.AddListener(ReiniciarJogo);
 
-#if UNITY_WEBGL && !UNITY_EDITOR
-    MostrarFaseCompleta(faseAtual, true);
-    Invoke(nameof(PausarJogo), 0.6f);
-#else
         MostrarSomente(faseCompletaPanel);
         Invoke(nameof(PausarJogo), 0.6f);
-#endif
     }
 
     void PausarJogo() { Time.timeScale = 0f; }
