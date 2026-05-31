@@ -4,7 +4,6 @@
   <meta charset="utf-8">
   <title>Math Shooter</title>
   <link rel="shortcut icon" href="TemplateData/favicon.ico">
-  <link rel="stylesheet" href="TemplateData/style.css">
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     html, body {
@@ -17,15 +16,58 @@
     }
     #unity-container {
       position: relative;
-      width: 960px;
-      height: 600px;
+      width: 960px !important;
+      height: 600px !important;
     }
     #unity-canvas {
-      width: 100% !important;
-      height: 100% !important;
+      width: 960px !important;
+      height: 600px !important;
       outline: none;
       display: block;
     }
+    #unity-loading-bar {
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      text-align: center;
+    }
+    #unity-logo {
+      width: 154px; height: 130px;
+      background: url('TemplateData/unity-logo-dark.png') no-repeat center;
+      background-size: contain;
+      margin: 0 auto 10px;
+    }
+    #unity-progress-bar-empty {
+      width: 300px; height: 10px;
+      background: #444;
+      border-radius: 5px;
+      overflow: hidden;
+    }
+    #unity-progress-bar-full {
+      width: 0%; height: 100%;
+      background: #f97316;
+      border-radius: 5px;
+    }
+    #unity-footer {
+      position: absolute;
+      bottom: 0; right: 0;
+      padding: 5px 8px;
+      display: flex; align-items: center; gap: 6px;
+    }
+    #unity-build-title {
+      color: rgba(255,255,255,0.4);
+      font-size: 11px;
+      font-family: sans-serif;
+    }
+    #unity-fullscreen-button {
+      width: 26px; height: 26px;
+      cursor: pointer;
+      background: url('TemplateData/fullscreen-button.png') no-repeat center;
+      background-size: contain;
+      opacity: 0.6;
+    }
+    #unity-warning { position: absolute; top: 0; left: 0; width: 100%; z-index: 10; display: none; }
+    #unity-logo-title-footer { display: none; }
   </style>
 </head>
 <body>
@@ -40,8 +82,8 @@
     <div id="unity-warning"></div>
     <div id="unity-footer">
       <div id="unity-logo-title-footer"></div>
-      <div id="unity-fullscreen-button"></div>
       <div id="unity-build-title">Math Shooter</div>
+      <div id="unity-fullscreen-button"></div>
     </div>
   </div>
   <script>
@@ -57,9 +99,9 @@
       var d = document.createElement('div');
       d.innerHTML = msg;
       wb.appendChild(d);
-      if (type == 'error') d.style = 'background:red;padding:10px;';
+      if (type == 'error') d.style = 'background:red;padding:10px;color:#fff;';
       else {
-        if (type == 'warning') d.style = 'background:yellow;padding:10px;';
+        if (type == 'warning') d.style = 'background:orange;padding:10px;';
         setTimeout(function() { wb.removeChild(d); upd(); }, 5000);
       }
       upd();
